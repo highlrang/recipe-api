@@ -8,7 +8,10 @@ import { UserController } from './user/user.controller';
 import { EmailService } from './email/email.service';
 import { UserModule } from './user/user.module';
 import { EmailModule } from './email/email.module';
+import { AuthModule } from './auth/auth.module';
+import { MemberService } from './member/member.service';
 import emailConfig from './config/emailConfig';
+import { MemberModule } from './member/member.module';
 
 @Module({
   
@@ -16,7 +19,7 @@ import emailConfig from './config/emailConfig';
 
     ConfigModule.forRoot({
         isGlobal: true,
-        envFilePath: '.env.local', // process.env.NODE_ENV === 'prod' ? './resources/.local.env' : '.env.local',
+        envFilePath: process.env.NODE_ENV === 'prod' ? 'src/resources/.env.prod' : 'src/resources/.env.local',
         load: [emailConfig]
         
     }),
@@ -33,10 +36,11 @@ import emailConfig from './config/emailConfig';
     }),
     
     UserModule,
+    AuthModule,
 
   ],
-  controllers: [AppController, UserController],
-  providers: [AppService, UserService, EmailService],
+  controllers: [AppController],
+  providers: [AppService],
 
   
 })

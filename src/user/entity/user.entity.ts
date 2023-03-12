@@ -1,9 +1,12 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, PrimaryColumn } from "typeorm";
+import * as bcrypt from "bcrypt";
+import { BasicEntity } from "src/common/entity/basic.entity";
+import { UserRole, UserRoleType } from "../enum/user-role.enum";
 
 @Entity('User') //
-export class UserEntity { // export
+export class UserEntity extends BasicEntity { // export
 
-    @PrimaryColumn() // 
+    @PrimaryColumn({ name: "user_id" }) // @PrimaryGeneratedColumn
     userId: number; // 변수: type;
 
     // @Column({ length: 30 })
@@ -16,8 +19,21 @@ export class UserEntity { // export
     @Column()
     password: string;
 
-    @Column()
-    signupVerifyToken: string;
+    @Column({ name: "verification_token" })
+    verificationToken: string;
 
+    @Column({ name: "certified_yn"})
+    certifiedYn: boolean;
 
+    @Column({ name: "token_expiration_date" })
+    tokenExpirationDate: Date;
+
+    @Column({ name: "role_type" })
+    roleType: UserRoleType;
+
+    @BeforeInsert()
+    async setPassword(password: string) {
+        const salt = await bcrypt.genSalt();
+        this.password = await bcrypt.hash(password || this.password, salt);
+    }
 }
