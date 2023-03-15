@@ -12,16 +12,17 @@ export class MemberEntity extends BasicEntity {
     @Column({ name: "user_id" })
     userId: number; // 변수: type;
     
-    @Column()
-    name: string;
+    @Column({ name: "member_name" })
+    memberName: string;
 
-    @Column()
-    grade: MemberGradeType;
+    @Column({ name: "member_grade" })
+    memberGrade: MemberGradeType;
 
-    static create(name: string) : MemberEntity{
+    static create(userId: number, name: string) : MemberEntity{
         const member = new MemberEntity();
-        member.name = name;
-        member.grade = MemberGrade.NORMAL;
+        member.userId = userId;
+        member.memberName = name;
+        member.memberGrade = MemberGrade.NORMAL;
         return member;
     }
 }

@@ -12,14 +12,14 @@ import { ApiResponse } from 'src/common/dto/ApiResponse';
 import { UserLoginDto } from './dto/user-login.dto';
 import { MemberService } from 'src/member/member.service';
 import { UserRole, UserRoleType } from './enum/user-role.enum';
+import { UserRepository } from './user.repository';
 
 @Injectable() //
 export class UserService {
 
     constructor(
         private readonly emailService: EmailService,
-        private readonly memberService: MemberService,
-        @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>, //
+        private readonly userRepository: UserRepository,
     ){}
 
     getUser(userId: bigint) : UserResponseDto{
@@ -39,28 +39,6 @@ export class UserService {
     }
     
 
-    // 어드민 회원가입은 별도로
-    async joinMember(userRequestDto: UserRequestDto) {
-        
-        // 회원 존재 확인
-        const userExist = await this.checkUserExists(userRequestDto.email, UserRole.MEMBER);
-        
-        if(userExist){
-            throw new UnprocessableEntityException('해당 이메일로는 가입할 수 없습니다'); // exception
-        }
-
-        const signupVerifyToken = uuid.v1();
-        // 사용자 저장
-        await this.saveUser(userRequestDto, signupVerifyToken);
-        // 회원 저장
-        await this.memberService.saveMember(userRequestDto.name);
-
-
-        // 회원 이메일 검증
-        await this.sendUserJoinEmail(userRequestDto.email, signupVerifyToken); 
-
-    }
-
     async certified(signupVerifyToken: string){
         
         const userEntity = await this.userRepository.findOne({
@@ -78,28 +56,25 @@ export class UserService {
 
     }
 
-    private async saveUser(dto: UserRequestDto, signupVerifyToken: string){
+    public async saveUser(dto: UserRequestDto, signupVerifyToken: string) : Promise<UserEntity> {
         const user = new UserEntity();
-        user.name = dto.name;
         user.email = dto.email;
         user.password = dto.password;
         user.verificationToken = signupVerifyToken;
-        user.roleType = UserRole.MEMBER; //
-        
+        user.roleType = UserRole.MEMBER;
         user.tokenExpirationDate = new Date(new Date().getTime() + 500000);
-        await this.userRepository.save(user);
+        return await this.userRepository.save(user);
     }
 
-    private async checkUserExists(email: string, role: string) : Promise<boolean>{
+    async checkUserExists(email: string, roleType: UserRoleType) : Promise<boolean>{
         const user = await this.userRepository.findOne({
-            where: { email: email }
+            where: { email: email, roleType: roleType }
         });
-        
         return user !== null;
 
     }
 
-    private async sendUserJoinEmail(email: string, signupVerifyToken: string){
+    async sendUserJoinEmail(email: string, signupVerifyToken: string){
         await this.emailService.sendUserJoinVerification(email, signupVerifyToken);
     }
 }

@@ -5,15 +5,16 @@ import { MemberModule } from 'src/member/member.module';
 import { MemberService } from 'src/member/member.service';
 import { UserEntity } from './entity/user.entity';
 import { UserController } from './user.controller';
+import { UserRepository } from './user.repository';
 import { UserService } from './user.service';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([UserEntity]),
-        MemberModule
     ],
     controllers: [UserController],
-    providers: [UserService, EmailService],
+    providers: [UserService, EmailService, UserRepository],
+    exports: [UserService],
 })
 export class UserModule {
 

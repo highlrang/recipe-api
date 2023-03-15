@@ -1,17 +1,28 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm';
 import { EmailService } from 'src/email/email.service';
 import { MemberService } from 'src/member/member.service';
+import { UserService } from 'src/user/user.service';
 import { MemberEntity } from './member.entity';
-import { MemberRepository } from './member.repository';
+import { MemberRepository, MemberRepositoryFactory } from './member.repository';
+import { MemberController } from './member.controller';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([MemberEntity]),
+        // TypeOrmModule.forFeature([MemberRepository]),
+        UserModule,
     ],
-    controllers: [],
-    providers: [MemberService],
-    exports: [MemberService]
+    controllers: [MemberController],
+    providers: [
+        MemberService, 
+        {
+            provide: 'MemberRepository',
+            useFactory: MemberRepositoryFactory,
+            inject: [getDataSourceToken()],
+        }
+    ],
+    // exports: [MemberService]
 })
 export class MemberModule {
 

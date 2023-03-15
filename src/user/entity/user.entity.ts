@@ -9,10 +9,6 @@ export class UserEntity extends BasicEntity { // export
     @PrimaryColumn({ name: "user_id" }) // @PrimaryGeneratedColumn
     userId: number; // 변수: type;
 
-    // @Column({ length: 30 })
-    @Column()
-    name: string;
-
     @Column()
     email: string;
 
