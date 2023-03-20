@@ -12,9 +12,9 @@ import { ApiResponse } from 'src/common/dto/ApiResponse';
 import { UserLoginDto } from './dto/user-login.dto';
 import { MemberService } from 'src/member/member.service';
 import { UserRole, UserRoleType } from './enum/user-role.enum';
-import { UserRepository } from './user.repository';
+import { UserRepository } from './repository/user.repository';
 
-@Injectable() //
+@Injectable()
 export class UserService {
 
     constructor(
@@ -24,36 +24,6 @@ export class UserService {
 
     getUser(userId: bigint) : UserResponseDto{
         return null;
-    }
-
-    async login(userLoginDto: UserLoginDto) {
-        
-        const userEntity = await this.userRepository.findOne({
-            where : {email: userLoginDto.email}
-        })
-
-        const checkPassword = await bcrypt.compare(userLoginDto.password, userEntity.password);
-        if(!checkPassword) throw new BadRequestException;
-
-
-    }
-    
-
-    async certified(signupVerifyToken: string){
-        
-        const userEntity = await this.userRepository.findOne({
-            where: {"verificationToken" : signupVerifyToken}
-        });
-
-        // 인증 토큰 만료 여부 체크
-        if(userEntity.tokenExpirationDate < new Date())
-            throw new BadRequestException();
-
-        this.userRepository.update(userEntity.userId, {
-            certifiedYn : true
-        });
-
-
     }
 
     public async saveUser(dto: UserRequestDto, signupVerifyToken: string) : Promise<UserEntity> {
@@ -72,10 +42,6 @@ export class UserService {
         });
         return user !== null;
 
-    }
-
-    async sendUserJoinEmail(email: string, signupVerifyToken: string){
-        await this.emailService.sendUserJoinVerification(email, signupVerifyToken);
     }
 }
 

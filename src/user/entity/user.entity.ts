@@ -15,6 +15,9 @@ export class UserEntity extends BasicEntity { // export
     @Column()
     password: string;
 
+    @Column({ name: "user_name" })
+    userName: string;
+
     @Column({ name: "verification_token" })
     verificationToken: string;
 

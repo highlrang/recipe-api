@@ -5,7 +5,7 @@ import { MemberModule } from 'src/member/member.module';
 import { MemberService } from 'src/member/member.service';
 import { UserEntity } from './entity/user.entity';
 import { UserController } from './user.controller';
-import { UserRepository } from './user.repository';
+import { UserRepository } from './repository/user.repository';
 import { UserService } from './user.service';
 
 @Module({

@@ -3,8 +3,8 @@ import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm';
 import { EmailService } from 'src/email/email.service';
 import { MemberService } from 'src/member/member.service';
 import { UserService } from 'src/user/user.service';
-import { MemberEntity } from './member.entity';
-import { MemberRepository, MemberRepositoryFactory } from './member.repository';
+import { MemberEntity } from './entity/member.entity';
+import { MemberRepository, MemberRepositoryFactory } from './repository/member.repository';
 import { MemberController } from './member.controller';
 import { UserModule } from 'src/user/user.module';
 

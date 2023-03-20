@@ -1,6 +1,6 @@
 import { UserEntity } from "src/user/entity/user.entity";
 import { DataSource, Repository } from "typeorm";
-import { MemberEntity } from "./member.entity";
+import { MemberEntity } from "../entity/member.entity";
 
 export interface MemberRepository extends Repository<MemberEntity>{
 

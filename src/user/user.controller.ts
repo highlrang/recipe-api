@@ -32,13 +32,13 @@ export class UserController { // export
 
     @Post("/email-verify")
     async verifyEmail(@Query() signupVerifyToken : string) : Promise<string> {
-        this.userService.certified(signupVerifyToken);
+        this.authService.certified(signupVerifyToken);
         return `email-verify로 넘어왔습니다 signupVerifyToken = ${signupVerifyToken}`;
     }
 
     @Post("/login")
     async login(@Body() userLoginDto: UserLoginDto): Promise<ApiResponse> {
-        const userDto = this.userService.login(userLoginDto);
+        const userDto = this.authService.login(userLoginDto);
         return ApiResponse.success(userDto);
     }
 

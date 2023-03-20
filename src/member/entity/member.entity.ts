@@ -1,6 +1,6 @@
 import { BasicEntity } from "src/common/entity/basic.entity";
 import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
-import { MemberGrade, MemberGradeType } from "./enum/member-grade.enum";
+import { MemberGrade, MemberGradeType } from "../enum/member-grade.enum";
 
 
 @Entity('Member') 
