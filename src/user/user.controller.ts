@@ -13,7 +13,6 @@ export class UserController { // export
 
     constructor(
         private readonly userService: UserService,
-        private readonly authService: AuthService,
     ){}
     
     @Get()
@@ -21,26 +20,27 @@ export class UserController { // export
         return null;
     }
 
-    @Get("/:id") // routing
-    async getUser(@Headers() headers: any, @Param() userId: bigint): Promise<UserResponseDto> { // 어노테이션 변수: 타입
+    // TODO auth controller 로 옮기기
+    // @Get("/:id") // routing
+    // async getUser(@Headers() headers: any, @Param() userId: bigint): Promise<UserResponseDto> { // 어노테이션 변수: 타입
         
-        const jwt = headers.authorization.split('Bearer ')[1]; // AOP 방식 살펴보기
-        this.authService.verify(jwt);
+    //     const jwt = headers.authorization.split('Bearer ')[1]; // AOP 방식 살펴보기
+    //     this.authService.verify(jwt);
 
-        return this.userService.getUser(userId);
-    }
+    //     return this.userService.getUser(userId);
+    // }
 
-    @Post("/email-verify")
-    async verifyEmail(@Query() signupVerifyToken : string) : Promise<string> {
-        this.authService.certified(signupVerifyToken);
-        return `email-verify로 넘어왔습니다 signupVerifyToken = ${signupVerifyToken}`;
-    }
+    // @Post("/email-verify")
+    // async verifyEmail(@Query() signupVerifyToken : string) : Promise<string> {
+    //     this.authService.certified(signupVerifyToken);
+    //     return `email-verify로 넘어왔습니다 signupVerifyToken = ${signupVerifyToken}`;
+    // }
 
-    @Post("/login")
-    async login(@Body() userLoginDto: UserLoginDto): Promise<ApiResponse> {
-        const userDto = this.authService.login(userLoginDto);
-        return ApiResponse.success(userDto);
-    }
+    // @Post("/login")
+    // async login(@Body() userLoginDto: UserLoginDto): Promise<ApiResponse> {
+    //     const userDto = this.authService.login(userLoginDto);
+    //     return ApiResponse.success(userDto);
+    // }
 
     
 

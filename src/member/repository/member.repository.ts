@@ -10,10 +10,10 @@ export interface MemberRepository extends Repository<MemberEntity>{
     
 }
 
-export const MemberRepositoryFactory = (dataSource: DataSource) => 
-dataSource.getRepository(MemberEntity).extend({
-    save2(){
+// export const MemberRepositoryFactory = (dataSource: DataSource) => 
+// dataSource.getRepository(MemberEntity).extend({
+//     save2(){
 
-    },
+//     },
     
-})
+// })

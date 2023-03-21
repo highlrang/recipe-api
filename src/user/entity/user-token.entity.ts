@@ -5,13 +5,13 @@ import { Column, Entity, PrimaryColumn } from "typeorm";
 export class UserTokenEntity extends BasicEntity {
 
     @PrimaryColumn({ name: 'user_token_id' })
-    private userTokenId: number;
+    userTokenId: number;
 
     @Column({ name: 'user_id' })
-    private userId: number;
+    userId: number;
 
     @Column({ name: 'refresh_token' })
-    private refreshToken : string;
+    refreshToken : string;
 
     
 }

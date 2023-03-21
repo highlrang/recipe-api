@@ -12,10 +12,10 @@ import * as uuid from 'uuid';
 export class MemberService {
 
     constructor(
-        private readonly userService : UserService,
-        @Inject('MemberRepository') private readonly memberRepository: MemberRepository,
+        // private readonly userService : UserService,
+        // @Inject('MemberRepository') private readonly memberRepository: MemberRepository,
         // @InjectRepository(MemberRepository) private readonly memberRepository : MemberRepository,
-        private dataSource: DataSource,
+        // private dataSource: DataSource,
     ){}
 
 }

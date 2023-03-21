@@ -9,9 +9,4 @@ export class MemberController {
         private readonly memberService: MemberService
     ){}
 
-    @Post()
-    async joinMember(@Body() memberRequestDto: MemberRequestDto): Promise<void> {
-        return this.memberService.joinMember(memberRequestDto);
-        // TODO memberService에 있어야할 거 같기도
-    }
 }

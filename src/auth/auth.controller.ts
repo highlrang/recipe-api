@@ -6,8 +6,8 @@ export class AuthController {
 
     constructor(private readonly authService: AuthService){}
 
-    @Post("/refresh")
-    async refreshToken(@User user, @Body("refreshToken") refreshToken: string): Promise<AuthTokenDto>{
-        return await this.authService.refreshToken();
-    }
+    // @Post("/refresh")
+    // async refreshToken(@User user, @Body("refreshToken") refreshToken: string): Promise<AuthTokenDto>{
+    //     return await this.authService.refreshToken();
+    // }
 }

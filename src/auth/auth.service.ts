@@ -14,26 +14,30 @@ import { UserService } from 'src/user/user.service';
 import * as uuid from 'uuid';
 import { UserRole } from 'src/user/enum/user-role.enum';
 import { EmailService } from 'src/email/email.service';
+import { UserEntity } from 'src/user/entity/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
+
+    private jwtSecret: string;
+    private jwtRefreshSecret: string;
+
     constructor(
         @Inject(authConfig.KEY) private config: ConfigType<typeof authConfig>,
         
         private readonly emailService: EmailService,
         private readonly userService: UserService,
-        private readonly userTokenRepository: UserTokenRepository,
-
-        @Inject('UserRepository') private readonly userRepository: UserRepository,
         private dataSource: DataSource,
-    ){}
+    ){ 
+        this.jwtSecret = config.jwtSecret;
+        this.jwtRefreshSecret = config.jwtRefreshSecret;
+    }
 
     async login(userLoginDto: UserLoginDto): Promise<AuthTokenDto> {
         
         // 로그인
-        const user = await this.userRepository.findOneBy({
-            email: userLoginDto.email
-        });
+        const user = await this.userService.findByEmail(userLoginDto.email);
 
         if(user == null) throw new BadRequestException();
 
@@ -43,21 +47,19 @@ export class AuthService {
         // token 발급
         const payload = { userId: user.userId, email: user.email };
 
-        const accessToken = jwt.sign(payload, this.config.jwtSecret, {
+        const accessToken = jwt.sign(payload, this.jwtSecret, {
             expiresIn: '1h',
             audience: '',
             issuer: ''
         });
 
-        const refreshToken = jwt.sign(payload, this.config.jwtRefreshSecret, {
+        const refreshToken = jwt.sign(payload, this.jwtRefreshSecret, {
             expiresIn: '1d',
             audience: '',
             issuer: ''
         });
 
-        this.userTokenRepository.update(user.userId, {
-            refreshToken : refreshToken
-        });
+        this.userService.updateUserRefreshToken(user.userId, refreshToken);
 
         return {
             accessToken, 
@@ -67,7 +69,7 @@ export class AuthService {
 
     verify(jwtString: string){
         try{
-            const payload = jwt.verify(jwtString, this.config.jwtSecret) as (jwt.JwtPayload | string) & UserResponseDto;
+            const payload = jwt.verify(jwtString, this.jwtSecret) as (jwt.JwtPayload | string) & UserResponseDto;
 
             const { userId, email, name } = payload;
 
@@ -88,9 +90,11 @@ export class AuthService {
 
     async getRefreshInfo(user: UserResponseDto, refreshToken: string): Promise<AuthTokenDto>{
 
-        const payload = jwt.verify(refreshToken, this.config.jwtSecret);
+        const payload = jwt.verify(refreshToken, this.jwtSecret);
 
         // token
+
+        return null;
     }
 
     async joinUser(userRequestDto: UserRequestDto){
@@ -101,7 +105,7 @@ export class AuthService {
 
         try {
             // 회원 존재 확인
-            const userExist = await this.userService.checkUserExists(userRequestDto.email, userRequestDto.role);
+            const userExist = await this.userService.checkUserExists(userRequestDto.email, userRequestDto.userRole);
             if(userExist){
                 throw new UnprocessableEntityException('해당 이메일로는 가입할 수 없습니다');
             }
@@ -128,16 +132,15 @@ export class AuthService {
 
     async certified(signupVerifyToken: string){
         
-        const userEntity = await this.userRepository.findOne({
-            where: {"verificationToken" : signupVerifyToken}
-        });
+        const userEntity = await this.userService.findByVerificationToken(signupVerifyToken);
 
         // 인증 토큰 만료 여부 체크
         if(userEntity.tokenExpirationDate < new Date())
             throw new BadRequestException();
 
-        this.userRepository.update(userEntity.userId, {
-            certifiedYn : true
+        this.userService.updateUser({
+            userId: userEntity.userId,
+            certifiedYn: true,
         });
 
 

@@ -4,7 +4,7 @@ import { UserTokenEntity } from "../entity/user-token.entity";
 
 export class UserTokenRepository extends Repository<UserTokenEntity> {
 
-    constructor(@InjectRepository(UserTokenEntity) private dataSource: DataSource){
+    constructor(private dataSource: DataSource){
         super(UserTokenEntity, dataSource.manager);
     }
 

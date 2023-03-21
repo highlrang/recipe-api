@@ -3,12 +3,34 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
+import { UserUpdateDto } from "../dto/user-update.dto";
 import { UserEntity } from "../entity/user.entity";
+
 
 export class UserRepository extends Repository<UserEntity> {
 
-    constructor(@InjectRepository(UserEntity) private dataSource: DataSource) {
+    constructor(private dataSource: DataSource) {
         super(UserEntity, dataSource.manager)
     }
     
+    findByEmail(email: string){
+        return this.findOneBy({
+            email: email
+        });
+    }
+
+    findByVerificationToken(token: string){
+        return this.findOneBy({
+            verificationToken: token
+        });
+    }
+
+    updateUser(dto: UserUpdateDto){
+        this.update(dto.userId, {
+            ...(dto.userName && { userName: dto.userName }),
+            ...(dto.verificationToken && { verificationToken: dto.verificationToken }),
+            ...(dto.certifiedYn && { certifiedYn: dto.certifiedYn }),
+            ...(dto.address && { address: dto.address }),
+        });
+    }
 }
