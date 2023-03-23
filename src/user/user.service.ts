@@ -21,9 +21,8 @@ export class UserService {
 
     constructor(
         private readonly emailService: EmailService,
-        // @InjectRepository(UserRepository) private readonly userRepository: UserRepository,
-        @Inject('UserRepository') private readonly userRepository: UserRepository,
-        @Inject('UserTokenRepository') private readonly userTokenRepository: UserTokenRepository,
+        private readonly userRepository: UserRepository,
+        private readonly userTokenRepository: UserTokenRepository,
         private dataSource: DataSource,
     ){}
 

@@ -11,29 +11,16 @@ import { DataSource } from 'typeorm';
 import { UserTokenEntity } from './entity/user-token.entity';
 import { UserTokenRepository } from './repository/user-token.repository';
 import { AuthModule } from 'src/auth/auth.module';
+import { CustomRepositoryModule } from 'src/common/repository/custom-repository.module';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([UserRepository, UserTokenRepository]),
+        CustomRepositoryModule.forRepository([UserRepository, UserTokenRepository])
     ],
     controllers: [UserController],
     providers: [
         UserService, 
         EmailService, 
-        {
-            provide: 'UserRepository',
-            useFactory: (dataSource: DataSource) => {
-                return dataSource.getRepository(UserEntity);
-            },
-            inject: [getDataSourceToken()],
-        },
-        {
-            provide: 'UserTokenRepository',
-            useFactory: (dataSource: DataSource) => {
-                return dataSource.getRepository(UserTokenEntity);
-            },
-            inject: [getDataSourceToken()],
-        }
     ],
     exports: [UserService],
 })
