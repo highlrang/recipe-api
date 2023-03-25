@@ -1,19 +1,19 @@
-import { Column } from "typeorm";
+import { Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 export abstract class BasicEntity {
 
-    @Column({ name: "delete_yn" })
+    @Column({ name: "delete_yn", default: 'N'})
     deleteYn: string;
 
-    @Column({ name: "insert_operator" })
+    @Column({ name: "insert_operator", default: 'system' })
     insertOperator: string;
 
-    @Column({ name: "update_operator" })
+    @Column({ name: "update_operator", default: 'system' })
     updateOperator: string;
 
-    @Column({ name: "insert_date" })
+    @CreateDateColumn({ name: "insert_date" })
     insertDate: Date;
 
-    @Column({ name: "update_date" })
+    @UpdateDateColumn({ name: "update_date" })
     updateDate: Date;
 }

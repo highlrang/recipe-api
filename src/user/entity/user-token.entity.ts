@@ -1,14 +1,14 @@
 import { BasicEntity } from "src/common/entity/basic.entity";
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('User_Token')
 export class UserTokenEntity extends BasicEntity {
 
-    @PrimaryColumn({ name: 'user_token_id' })
+    @PrimaryGeneratedColumn({ name: 'user_token_id' })
     userTokenId: number;
 
     @Column({ name: 'user_id' })
-    userId: number;
+    userId: string;
 
     @Column({ name: 'refresh_token' })
     refreshToken : string;

@@ -6,9 +6,5 @@ import { UserTokenEntity } from "../entity/user-token.entity";
 @CustomRepository(UserTokenEntity)
 export class UserTokenRepository extends Repository<UserTokenEntity> {
 
-    constructor(private dataSource: DataSource){
-        super(UserTokenEntity, dataSource.manager);
-    }
-
     
 }

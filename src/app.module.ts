@@ -21,7 +21,7 @@ import * as ormconfig from 'ormconfig';
 
     ConfigModule.forRoot({
         isGlobal: true,
-        envFilePath: process.env.NODE_ENV === 'prod' ? 'src/resources/.env.prod' : 'src/resources/.env.local',
+        envFilePath: `src/resources/.env.${process.env.NODE_ENV}`,
         load: [emailConfig, authConfig]
         
     }),
@@ -60,6 +60,5 @@ import * as ormconfig from 'ormconfig';
 
   
 })
-
 
 export class AppModule {}

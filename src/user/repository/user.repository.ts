@@ -21,12 +21,6 @@ export class UserRepository extends Repository<UserEntity> {
         });
     }
 
-    findByVerificationToken(token: string){
-        return this.findOneBy({
-            verificationToken: token
-        });
-    }
-
     updateUser(dto: UserUpdateDto){
         this.update(dto.userId, {
             ...(dto.userName && { userName: dto.userName }),

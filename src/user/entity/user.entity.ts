@@ -1,4 +1,4 @@
-import { BeforeInsert, Column, Entity, PrimaryColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import * as bcrypt from "bcrypt";
 import { BasicEntity } from "src/common/entity/basic.entity";
 import { UserRole, UserRoleType } from "../enum/user-role.enum";
@@ -7,7 +7,7 @@ import { UserRole, UserRoleType } from "../enum/user-role.enum";
 export class UserEntity extends BasicEntity { // export
 
     @PrimaryColumn({ name: "user_id" }) // @PrimaryGeneratedColumn
-    userId: number; // 변수: type;
+    userId: string;
 
     @Column()
     email: string;
@@ -17,15 +17,6 @@ export class UserEntity extends BasicEntity { // export
 
     @Column({ name: "user_name" })
     userName: string;
-
-    @Column({ name: "verification_token" })
-    verificationToken: string;
-
-    @Column({ name: "certified_yn"})
-    certifiedYn: boolean;
-
-    @Column({ name: "token_expiration_date" })
-    tokenExpirationDate: Date;
 
     @Column({ name: "role_type" })
     roleType: UserRoleType;

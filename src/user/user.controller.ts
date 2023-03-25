@@ -17,7 +17,7 @@ export class UserController { // export
     
     @Get()
     async getUserList() : Promise<Array<UserResponseDto>>{
-        return null;
+        return this.userService.findAll();
     }
 
     // TODO auth controller 로 옮기기

@@ -1,5 +1,5 @@
 export class UserUpdateDto{
-    userId: number;
+    userId: string;
     userName?: string;
     verificationToken?: string;
     certifiedYn?: boolean;

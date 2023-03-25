@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiResponse } from 'src/common/dto/ApiResponse';
 import { UserRequestDto } from 'src/user/dto/user-request.dto';
 import { AuthService } from './auth.service';
@@ -7,6 +7,14 @@ import { AuthService } from './auth.service';
 export class AuthController {
 
     constructor(private readonly authService: AuthService){}
+
+    @Get("/code/:provider")
+    async oAuthAuthorize(@Param("provider") provider: string, @Query("code") code: string){
+        // token 발급 요청
+        const result = await this.authService.oAuthLogin(provider, code);
+
+        return ApiResponse.success(result);
+    }
 
     @Post("/join")
     async join(@Body() userRequestDto: UserRequestDto): Promise<ApiResponse>{

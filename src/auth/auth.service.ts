@@ -16,6 +16,10 @@ import { UserRole } from 'src/user/enum/user-role.enum';
 import { EmailService } from 'src/email/email.service';
 import { UserEntity } from 'src/user/entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { HttpService } from '@nestjs/axios';
+import { OAuthService } from './oauth.service';
+import { OAuthProvider } from 'src/common/enum/oauth-provider.enum';
+import { KakaoOAuthService } from './kakao-oauth.service';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +30,7 @@ export class AuthService {
     constructor(
         @Inject(authConfig.KEY) private config: ConfigType<typeof authConfig>,
         
-        private readonly emailService: EmailService,
+        private readonly kakaoOAuthService: KakaoOAuthService,
         private readonly userService: UserService,
         private dataSource: DataSource,
     ){ 
@@ -34,32 +38,60 @@ export class AuthService {
         this.jwtRefreshSecret = config.jwtRefreshSecret;
     }
 
-    async login(userLoginDto: UserLoginDto): Promise<AuthTokenDto> {
+    async oAuthLogin(provider: string, code: string): Promise<AuthTokenDto>{
+
+        let userInfo;
+        if(provider === OAuthProvider.KAKAO){
+            userInfo =  await this.kakaoOAuthService.authorize(code);   
+    
+        }
+
+        const userId = userInfo.id;
+        const userExist = await this.userService.existUserById(userId);
+    
+        let userEntity;
+
+        if(!userExist){
+            const userRequestDto = {
+                userId,
+                email: userInfo.kakao_account.email,
+                userName: userInfo.kakao_account.name,
+                password: '',
+                userRole: UserRole.MEMBER, // 처음 로그인 요청에서 받기!!
+            }
+
+            userEntity = await this.joinUser(userRequestDto);
+
+        }else{
+            
+            userEntity = await this.userService.findById(userId);
+        }
+
+
+        const userDto = new UserResponseDto(userEntity);
         
-        // 로그인
-        const user = await this.userService.findByEmail(userLoginDto.email);
+        return await this.login(userDto);
+    
+    }
 
-        if(user == null) throw new BadRequestException();
+    async login(userLoginDto: UserLoginDto): Promise<AuthTokenDto> {
 
-        const matchPw = await bcrypt.compare(userLoginDto.password, user.password);
-        if(!matchPw) throw new BadRequestException();
+        const userId = userLoginDto.userId;
 
         // token 발급
-        const payload = { userId: user.userId, email: user.email };
-
-        const accessToken = jwt.sign(payload, this.jwtSecret, {
+        const accessToken = jwt.sign({userId}, this.jwtSecret, {
             expiresIn: '1h',
             audience: '',
             issuer: ''
         });
 
-        const refreshToken = jwt.sign(payload, this.jwtRefreshSecret, {
+        const refreshToken = jwt.sign({userId}, this.jwtRefreshSecret, {
             expiresIn: '1d',
             audience: '',
             issuer: ''
         });
 
-        this.userService.updateUserRefreshToken(user.userId, refreshToken);
+        await this.userService.updateUserRefreshToken(userId, refreshToken);
 
         return {
             accessToken, 
@@ -71,22 +103,15 @@ export class AuthService {
         try{
             const payload = jwt.verify(jwtString, this.jwtSecret) as (jwt.JwtPayload | string) & UserResponseDto;
 
-            const { userId, email, name } = payload;
+            const { userId, email, userName } = payload;
 
-            return {
-                userId: userId,
-                email: email,
-                name: name
-            }
-
-            // return payload;
+            return payload;
 
         }catch (e){
             throw new UnauthorizedException();
         }
     }
 
-    verifyRefreshToken(){}
 
     async getRefreshInfo(user: UserResponseDto, refreshToken: string): Promise<AuthTokenDto>{
 
@@ -97,52 +122,29 @@ export class AuthService {
         return null;
     }
 
-    async joinUser(userRequestDto: UserRequestDto){
+    async joinUser(userRequestDto: UserRequestDto): Promise<UserEntity>{
+
+        let userEntity;
         const queryRunner = this.dataSource.createQueryRunner();
 
-        await queryRunner.connect(); // hot to mock test
+        await queryRunner.connect(); // how to mock test
         await queryRunner.startTransaction();
 
         try {
-            // 회원 존재 확인
-            const userExist = await this.userService.checkUserExists(userRequestDto.email, userRequestDto.userRole);
-            if(userExist){
-                throw new UnprocessableEntityException('해당 이메일로는 가입할 수 없습니다');
-            }
-
-            const signupVerifyToken = uuid.v1();
             // 사용자 저장
-            const savedUser = await this.userService.saveUser(userRequestDto, signupVerifyToken);
+            userEntity = await this.userService.saveUser(userRequestDto);
         
-
-            // 회원 이메일 검증
-            await this.emailService.sendUserJoinVerification(userRequestDto.email, signupVerifyToken); 
-
             await queryRunner.commitTransaction();
 
         } catch (e) {
             console.log(e);
-            // await queryRunner.rollbackTransaction();
+            await queryRunner.rollbackTransaction();
 
         } finally {
             await queryRunner.release();
 
         }
-    }
 
-    async certified(signupVerifyToken: string){
-        
-        const userEntity = await this.userService.findByVerificationToken(signupVerifyToken);
-
-        // 인증 토큰 만료 여부 체크
-        if(userEntity.tokenExpirationDate < new Date())
-            throw new BadRequestException();
-
-        this.userService.updateUser({
-            userId: userEntity.userId,
-            certifiedYn: true,
-        });
-
-
+        return userEntity;
     }
 }

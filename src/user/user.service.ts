@@ -26,8 +26,26 @@ export class UserService {
         private dataSource: DataSource,
     ){}
 
-    getUser(userId: bigint) : UserResponseDto{
-        return null;
+    async findAll(){
+        const userList = await this.userRepository.find();
+        return userList.map(user => new UserResponseDto(user));
+    }
+
+    async existUserById(userId: string): Promise<boolean>{
+        const userEntity = await this.userRepository.findOneBy({
+            userId: userId
+        });
+
+        return userEntity != null;
+
+    }
+
+    async findById(userId: string) : Promise<UserResponseDto>{
+        const userEntity = await this.userRepository.findOneBy({
+            userId: userId
+        });
+    
+        return new UserResponseDto(userEntity);
     }
 
     public async findByEmail(email: string){
@@ -36,13 +54,14 @@ export class UserService {
         });
     }
 
-    public async saveUser(dto: UserRequestDto, signupVerifyToken: string) : Promise<UserEntity> {
+    public async saveUser(dto: UserRequestDto) : Promise<UserEntity> {
         const user = new UserEntity();
+        
+        user.userId = dto.userId;
         user.email = dto.email;
+        user.userName = dto.userName;
         user.password = dto.password;
-        user.verificationToken = signupVerifyToken;
         user.roleType = UserRole.MEMBER;
-        user.tokenExpirationDate = new Date(new Date().getTime() + 500000);
         return await this.userRepository.save(user);
     }
 
@@ -54,18 +73,19 @@ export class UserService {
 
     }
 
-    async findByVerificationToken(token: string){
-        return await this.userRepository.findByVerificationToken(token);
-    }
-
     async updateUser(userUpdateDto: UserUpdateDto){
         await this.userRepository.updateUser(userUpdateDto);
     }
 
-    async updateUserRefreshToken(userId: number, refreshToken: string){
-        await this.userTokenRepository.update(userId, {
-            refreshToken: refreshToken
-        }) 
+    async updateUserRefreshToken(userId: string, refreshToken: string){
+
+        const userTokenEntity = {
+            userId, 
+            refreshToken,
+        }
+
+        await this.userTokenRepository.upsert(userTokenEntity, ['userId']);
+
     }
 }
 
