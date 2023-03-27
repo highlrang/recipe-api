@@ -14,6 +14,7 @@ import emailConfig from './config/emailConfig';
 import { MemberModule } from './member/member.module';
 import authConfig from './config/authConfig';
 import * as ormconfig from 'ormconfig';
+import { CoreModule } from './common/core.module';
 
 @Module({
   
@@ -27,29 +28,8 @@ import * as ormconfig from 'ormconfig';
     }),
     
     TypeOrmModule.forRoot({ ...ormconfig }),
-
-    // TypeOrmModule.forRoot({
-    //   name: "prodDB",
-    //   type: "mysql",
-    //   host: process.env.DB_HOST,
-    //   port: parseInt(process.env.DB_PORT),
-    //   username: process.env.DB_USER,
-    //   password: process.env.DB_PASSWORD,
-    //   database: 'recipedb',
-    //   entities: [__dirname + "/**/*.entity{.ts,.js}"],
-    //   synchronize: false
-    // }),
-
-    // TypeOrmModule.forRoot({
-    //   name: "localDB",
-    //   type: "sqlite",
-    //   database: 'recipedb',
-    //   autoLoadEntities: true,
-    //   synchronize: true,
-    //   logging: true,
-    //   dropSchema: true
-    // }),
     
+    CoreModule,
     UserModule,
     MemberModule,
     AuthModule,
